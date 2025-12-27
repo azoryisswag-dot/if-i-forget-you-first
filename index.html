@@ -1,320 +1,446 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>If I Forget You First</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
+<title>If I Forget You First — Demo</title>
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<!-- Google fonts (will load when online) -->
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@300;400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
 <style>
-html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background: black;
-    font-family: "Georgia", serif;
-    overflow: hidden;
+:root{
+  --bg-color: #07070a;
+  --accent: #d4b3ff;
+  --glass: rgba(255,255,255,0.06);
+  --glass-2: rgba(255,255,255,0.03);
+  --text: #eef0f6;
+  --muted: #b8bcd0;
+  --card: rgba(20,18,28,0.6);
 }
 
-/* ===== BACKGROUND ===== */
-#background {
-    position: fixed;
-    inset: 0;
-    background: url("bg_station.jpeg") center / cover no-repeat;
-    filter: brightness(0.65) saturate(0.9);
+/* Basic reset */
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg-color);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;padding:0;}
+
+/* Background */
+#background{
+  position:fixed; inset:0;
+  background: url("bg_station.jpeg") center/cover no-repeat;
+  filter: brightness(0.65) saturate(0.95);
+  transition: filter .6s ease;
 }
 
-/* ===== OVERLAY (SOFT VIGNETTE) ===== */
-#overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(
-        circle at center,
-        rgba(0,0,0,0.2),
-        rgba(0,0,0,0.7)
-    );
+/* soft vignette */
+#vignette{ position:fixed; inset:0; pointer-events:none;
+  background: radial-gradient(circle at center, rgba(0,0,0,0.05), rgba(0,0,0,0.6));
 }
 
-/* ===== SPRITES ===== */
-.sprite {
-    position: absolute;
-    bottom: 140px;
-    width: 38%;
-    max-width: 320px;
-    transition: opacity 0.8s, filter 0.8s, transform 0.8s;
+/* stage container */
+#stage{
+  position:relative;
+  max-width:900px;
+  margin: 26px auto 40px;
+  height: calc(100vh - 70px);
+  overflow:hidden;
+  border-radius:14px;
+  box-shadow: 0 10px 50px rgba(0,0,0,0.7);
+  backdrop-filter: blur(2px);
 }
 
-#airi {
-    left: 4%;
+/* sprites */
+.sprite{
+  position:absolute;
+  bottom: 150px;
+  width: 36%;
+  max-width:360px;
+  transition: opacity .9s cubic-bezier(.2,.9,.2,1), transform .8s, filter .8s;
+  will-change: opacity, transform;
+  -webkit-user-drag: none;
+  user-select:none;
+}
+#airi{ left: 4%; transform-origin: bottom left; }
+#shino{ right: 4%; transform-origin: bottom right; }
+
+/* fading sprite class */
+.fading{ opacity:0.32; filter: blur(3px) grayscale(.15); transform: translateY(12px) scale(.99); }
+
+/* top UI bar */
+#topbar{
+  position:absolute; left:0; right:0; top:0; padding:14px 20px; display:flex; gap:12px; align-items:center; justify-content:space-between;
+  pointer-events:none;
+}
+#title{
+  pointer-events:auto;
+  color:var(--text); font-family:Merriweather, serif; font-weight:700; letter-spacing:0.6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  padding:6px 12px; border-radius:10px; box-shadow: 0 6px 18px rgba(0,0,0,0.45);
 }
 
-#shino {
-    right: 4%;
+/* memory meter */
+#meterWrap{ pointer-events:auto; display:flex; gap:8px; align-items:center; }
+#meterLabel{ color:var(--muted); font-size:13px; margin-right:6px;}
+#meter{ width:160px; height:10px; background:var(--glass-2); border-radius:999px; overflow:hidden; box-shadow: inset 0 -1px 6px rgba(0,0,0,0.6);}
+#meterBar{ height:100%; width:0%; background: linear-gradient(90deg,#ffd6ff,#b98bff); transition: width .6s ease; }
+
+/* the textbox card */
+#ui{
+  position:absolute; left:18px; right:18px; bottom:18px; padding:18px;
+  border-radius:12px;
+  background: linear-gradient(180deg, rgba(8,8,12,0.85), rgba(8,8,12,0.72));
+  box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+  border: 1px solid rgba(255,255,255,0.04);
+  backdrop-filter: blur(6px) saturate(1.05);
 }
 
-.fading {
-    opacity: 0.35;
-    filter: blur(2.5px);
-    transform: translateY(10px);
+/* nameplate */
+#nameplate{
+  display:inline-block; padding:6px 12px; border-radius:10px; margin-bottom:10px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  color:var(--accent); font-weight:600; font-family:Merriweather, serif;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.4);
 }
 
-/* ===== TEXTBOX ===== */
-#textbox {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-    padding: 18px 20px 22px;
-    box-sizing: border-box;
-
-    background: linear-gradient(
-        to top,
-        rgba(10,10,20,0.95),
-        rgba(10,10,20,0.75)
-    );
-
-    border-top: 1px solid rgba(255,255,255,0.1);
-    box-shadow: 0 -8px 30px rgba(0,0,0,0.7);
+/* text area */
+#line{
+  color:var(--text);
+  font-size:17px;
+  line-height:1.7;
+  min-height:92px;
+  margin-bottom:12px;
+  white-space:pre-wrap;
+  font-family: "Merriweather", serif;
 }
 
-#name {
-    font-weight: bold;
-    color: #d9b8ff;
-    letter-spacing: 0.5px;
-    margin-bottom: 8px;
+/* choices grid */
+#choices{ display:flex; flex-direction:column; gap:8px; }
+.choice{
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.05);
+  color:var(--text);
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:15px;
+  text-align:left;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+  transition: transform .12s ease, background .12s;
+  cursor:pointer;
+  pointer-events:auto;
 }
+.choice:active{ transform: translateY(2px); }
+.choice:hover{ background: rgba(255,255,255,0.02); }
 
-#text {
-    color: #f2f2f6;
-    line-height: 1.7;
-    min-height: 90px;
-    font-size: 16px;
+/* start screen modal */
+#startScreen{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:40;
+  background: linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.6));
+  backdrop-filter: blur(4px);
 }
+#startCard{ width:88%; max-width:520px; padding:22px; border-radius:14px; background: linear-gradient(180deg, rgba(10,8,14,0.9), rgba(10,8,14,0.78)); box-shadow: 0 20px 60px rgba(0,0,0,0.6); text-align:center;}
+#gameTitle{ font-family:Merriweather,serif; color:var(--accent); font-size:28px; margin-bottom:10px; }
+#subtitle{ color:var(--muted); margin-bottom:18px; }
 
-/* ===== CHOICES ===== */
-#choices {
-    margin-top: 14px;
+/* start buttons */
+.startBtn{
+  padding:12px 16px; border-radius:10px; font-size:15px; border:none; cursor:pointer; margin:6px;
+  background: linear-gradient(90deg,#cfa9ff,#8ea0ff);
+  color:#071020; font-weight:600;
 }
+.smallBtn{ background:transparent; border:1px solid rgba(255,255,255,0.06); color:var(--text); padding:8px 12px; border-radius:10px; }
 
-.choice {
-    width: 100%;
-    margin-top: 8px;
-    padding: 14px;
-    font-size: 15px;
-    background: rgba(35,35,60,0.95);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #ffffff;
-    border-radius: 8px;
+/* ending screen */
+#endingOverlay{
+  position:absolute; inset:0; display:none; align-items:center; justify-content:center; z-index:60;
+  background: linear-gradient(180deg, rgba(5,5,8,0.6), rgba(5,5,8,0.9));
 }
+#endingCard{ width:86%; max-width:520px; padding:22px;border-radius:12px; background: linear-gradient(180deg, rgba(15,12,20,0.95), rgba(12,10,16,0.9)); color:var(--text); text-align:center; box-shadow: 0 20px 60px rgba(0,0,0,0.7);}
 
-.choice:hover {
-    background: rgba(60,60,95,1);
-}
-
-/* ===== ENDING TEXT ===== */
-.ending {
-    text-align: center;
-    font-style: italic;
-    opacity: 0.9;
+/* small responsive tweaks */
+@media (max-width:520px){
+  #stage{ margin:10px; height: calc(100vh - 20px); border-radius:10px; }
+  .sprite{ width:44%; bottom:130px; }
+  #ui{ left:10px; right:10px; padding:14px; bottom:12px; border-radius:12px; }
 }
 </style>
 </head>
-
 <body>
 
 <div id="background"></div>
-<div id="overlay"></div>
+<div id="vignette"></div>
 
-<img id="airi" class="sprite" src="airi.png" style="display:none;">
-<img id="shino" class="sprite" src="shino.png" style="display:none;">
+<div id="stage">
+  <!-- sprites -->
+  <img id="airi" class="sprite" src="airi.png" alt="Airi sprite" style="display:none;">
+  <img id="shino" class="sprite" src="shino.png" alt="Shino sprite" style="display:none;">
 
-<div id="textbox">
-    <div id="name"></div>
-    <div id="text"></div>
+  <!-- top bar with title and meter -->
+  <div id="topbar">
+    <div id="title">If I Forget You First</div>
+    <div id="meterWrap">
+      <div id="meterLabel">Memory</div>
+      <div id="meter"><div id="meterBar"></div></div>
+    </div>
+  </div>
+
+  <!-- main UI / textbox -->
+  <div id="ui" role="dialog" aria-label="Visual Novel Textbox">
+    <div id="nameplate"><span id="name"></span></div>
+    <div id="line"></div>
     <div id="choices"></div>
+  </div>
+
+  <!-- Start screen -->
+  <div id="startScreen">
+    <div id="startCard">
+      <div id="gameTitle">If I Forget You First</div>
+      <div id="subtitle">A short, tragic yuri visual novel — quiet, intimate, inevitable.</div>
+      <div style="margin-bottom:14px; color:var(--muted); font-size:14px;">
+        Tap <strong>Start</strong> to begin — make choices, watch memories build, and learn what it costs to hold on.
+      </div>
+      <div>
+        <button class="startBtn" id="startBtn">Start</button>
+        <button class="smallBtn" id="howBtn">How to Play</button>
+      </div>
+      <div id="howBox" style="display:none; margin-top:12px; color:var(--muted); font-size:13px; text-align:left;">
+        <p style="margin:6px 0">• Tap choices to progress. The <strong>Memory</strong> meter grows with intimacy. When it fills, Shino begins to fade.<br>• Each route leads to an emotional ending — watch the story unfold.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ending overlay (reused for different endings) -->
+  <div id="endingOverlay">
+    <div id="endingCard">
+      <div id="endingTitle" style="font-family:Merriweather, serif; font-size:20px; color:var(--accent); margin-bottom:8px"></div>
+      <div id="endingText" style="color:var(--text); margin-bottom:14px; line-height:1.6;"></div>
+      <div style="display:flex; gap:8px; justify-content:center;">
+        <button class="startBtn" id="endingRestart">Play Again</button>
+        <button class="smallBtn" id="endingTitleBtn">Return to Title</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
+/* -------------------------
+   Game state & scenes
+   ------------------------- */
 let state = {
-    scene: "intro1",
-    closeness: 0
+  scene: "s_intro_1",
+  closeness: 0,   // memory / intimacy meter (0..6)
+  started: false
 };
 
+/* Scenes are longer — each has speaker, text, choices or next. 
+   Make sure branching covers the endings. */
 const scenes = {
-    intro1: {
-        name: "Airi",
-        speaker: "airi",
-        text: "I started noticing her in the evenings—always the same time, always the same train. She never rushed. She never lingered either.",
-        next: "intro2"
-    },
 
-    intro2: {
-        name: "Airi",
-        speaker: "airi",
-        text: "There was something fragile about the way she stood on the platform. Like she was afraid the world might forget she was there.",
-        next: "intro3"
-    },
+  /* intro sequence (longer) */
+  s_intro_1: { speaker: "airi", name: "Airi", text: "Even before I learned her name, I noticed a rhythm to her evenings — the same coat, the same bench, the same distant stare. She kept a small space of herself between the trains and the crowd.", next:"s_intro_2" },
+  s_intro_2: { speaker: "airi", name: "Airi", text: "It was the kind of presence that felt like an unfinished sentence. I told myself not to get involved. People come and go. Trains come and go.", next:"s_intro_3" },
+  s_intro_3: { speaker: "airi", name: "Airi", text: "One night she looked right at me. Not a glance — a look that asked a question I couldn't name.", choices:[ { text:"Approach her", next:"s_meet_1", closeness:1}, { text:"Leave quietly", next:"s_shy_away", closeness:0 } ] },
 
-    intro3: {
-        name: "Airi",
-        speaker: "airi",
-        text: "One night, she looked at me directly. And smiled—like she already knew how this would end.",
-        choices: [
-            { text: "Speak to her", next: "meetShino", closeness: 1 },
-            { text: "Look away", next: "distanceStart", closeness: 0 }
-        ]
-    },
+  /* meeting */
+  s_meet_1: { speaker: "shino", name: "Shino", text: "You could sit here if you want. It's quieter on this bench.", next:"s_meet_2" },
+  s_meet_2: { speaker: "airi", name: "Airi", text: "I sat. She smelled faintly of winter citrus. Her hands were small and unafraid of the cold.", next:"s_meet_3" },
+  s_meet_3: { speaker: "shino", name: "Shino", text: "Most people don't remember me for long. It's okay. I'm used to it.", choices:[ { text:"What do you mean?", next:"s_reveal_1", closeness:1 }, { text:"That's not true", next:"s_believe_1", closeness:1 } ] },
 
-    meetShino: {
-        name: "Shino",
-        speaker: "shino",
-        text: "You don’t have to stay. People usually don’t.",
-        choices: [
-            { text: "I want to", next: "talk1", closeness: 1 },
-            { text: "Why do you say that?", next: "talk2", closeness: 1 }
-        ]
-    },
+  s_reveal_1: { speaker: "shino", name: "Shino", text: "Some things slip out of memory without warning. I don't like asking for permanence — it's cruel. But sometimes I wish for a hand to hold.", next:"s_reveal_2" },
+  s_believe_1: { speaker: "airi", name: "Airi", text: "Her voice was calm as if she were stating the weather. That level tone made me want to argue. Instead I asked about trains.", next:"s_reveal_2" },
 
-    talk1: {
-        name: "Airi",
-        speaker: "airi",
-        text: "I surprised myself by sitting beside her. The bench felt colder than it should’ve.",
-        next: "talk3"
-    },
+  s_reveal_2: { speaker: "shino", name: "Shino", text: "If you keep me too close, I might start to go. If you keep me far, you might never know I was here at all.", choices:[ { text:"Hold her hand", next:"s_close_1", closeness:2 }, { text:"Stay distant", next:"s_distance_1", closeness:0 } ] },
 
-    talk2: {
-        name: "Shino",
-        speaker: "shino",
-        text: "Because memories are heavier than people think.",
-        next: "talk3"
-    },
+  /* close path — builds memory quickly */
+  s_close_1: { speaker:"airi", name:"Airi", text: "I took her hand because it felt right. It surprised me how steady she was. When she smiled, it felt like a secret I was allowed to keep.", next:"s_close_2" },
+  s_close_2: { speaker:"shino", name:"Shino", text: "Promise me one thing. Don't try to hold my name like a stone. Hold the feeling instead, even if the form slips.", choices:[ { text:"I promise", next:"s_close_3", closeness:1 }, { text:"I can't promise that", next:"s_close_3", closeness:1 } ] },
 
-    talk3: {
-        name: "Shino",
-        speaker: "shino",
-        text: "If you carry too many, eventually something has to be dropped.",
-        choices: [
-            { text: "Take her hand", next: "closeRoute", closeness: 2 },
-            { text: "Say nothing", next: "distanceStart", closeness: 0 }
-        ]
-    },
+  s_close_3: { speaker:"airi", name:"Airi", text: "We began to meet more often. Small rituals replaced awkwardness: a coffee, a book exchange, two coins on a bench to keep the night balanced.", next:"s_close_4" },
+  s_close_4: { speaker:"shino", name:"Shino", text: "Sometimes she would stare at the tracks as if listening for something below the concrete. I started writing small notes — nothing fancy — just dates and a phrase: 'She laughed here.'", next:"s_close_5" },
+  s_close_5: { speaker:"airi", name:"Airi", text: "One afternoon she traced the edge of my palm and said, 'I like that you remember my laugh.'", choices:[ { text:"Confess how you feel", next:"s_confess", closeness:1 }, { text:"Keep it gentle", next:"s_steady", closeness:0 } ] },
 
-    closeRoute: {
-        name: "Airi",
-        speaker: "airi",
-        text: "Being with her felt like standing on the edge of something endless. Beautiful. Terrifying.",
-        next: "closeRoute2"
-    },
+  s_confess: { speaker:"airi", name:"Airi", text: "I told her very quietly that I didn't like the idea of losing her. She answered with a smile that didn't reach her eyes.", next:"s_confess_2" },
+  s_confess_2: { speaker:"shino", name:"Shino", text: "If one of us must be forgotten for the other to live whole, I'll choose. But I won't make that choice without you knowing why.", next:"s_confess_3" },
 
-    closeRoute2: {
-        name: "Shino",
-        speaker: "shino",
-        text: "Promise me something. Don’t try too hard to remember.",
-        choices: [
-            { text: "I promise", next: "clingEnding", closeness: 3 },
-            { text: "I can’t promise that", next: "pretendEnding", closeness: 3 }
-        ]
-    },
+  s_confess_3: { speaker:"airi", name:"Airi", text: "That night I copied every message, every laugh, every small habit into a notebook. I told myself the pages would be my anchor.", next:"s_confess_4" },
+  s_confess_4: { speaker:"shino", name:"Shino", text: "Those notebooks helped at first. And then, small things slipped — a word, a turn of phrase. You taught me to be brave anyway.", choices:[ { text:"Cling to her tightly", next:"ending_cling_path", closeness:2 }, { text:"Decide to let things unfold", next:"s_detach_1", closeness:0 } ] },
 
-    distanceStart: {
-        name: "Airi",
-        speaker: "airi",
-        text: "I kept my distance. Told myself it was maturity. Or fear. Or kindness.",
-        next: "distance2"
-    },
+  s_steady: { speaker:"airi", name:"Airi", text: "We kept things light. A kiss that never landed. A near-confession. It felt like holding breath near a shore.", next:"s_steady_2" },
+  s_steady_2: { speaker:"shino", name:"Shino", text: "Someday I might be a story you read and smile at without remembering where it began. Is that so bad?", choices:[ { text:"No, keep me as a story", next:"ending_pretend_path", closeness:2 }, { text:"I want more than a story", next:"s_close_5", closeness:1 } ] },
 
-    distance2: {
-        name: "Airi",
-        speaker: "airi",
-        text: "Weeks passed. Then months. One evening, her seat was empty.",
-        next: "lateEnding"
-    },
+  /* distance path (slow, regret) */
+  s_distance_1: { speaker:"airi", name:"Airi", text: "I thought distance was kindness — a gentle way to let her go without cruelty. The bench stays empty a little longer each day.", next:"s_distance_2" },
+  s_distance_2: { speaker:"airi", name:"Airi", text: "Then one evening the coat wasn't there. A sweater left behind on the bench. A note that read simply: 'Don't make a promise you can't keep.'", choices:[ { text:"Search for her", next:"s_search_1", closeness:0 }, { text:"Live on and wonder", next:"ending_late_path", closeness:0 } ] },
 
-    clingEnding: {
-        name: "Airi",
-        speaker: "airi",
-        text: "I wrote everything down. Her voice. Her habits. Her name. And still—one morning—I couldn’t remember who the notes were about.",
-        ending: true
-    },
+  s_search_1: { speaker:"airi", name:"Airi", text: "I asked around the station. A neighbor remembered a girl who shared songs. A barista recollected a laugh. But the threads were thin.", next:"s_search_2" },
+  s_search_2: { speaker:"airi", name:"Airi", text: "In the notebook I had never finished, a single page held a phrase: 'If I must go, go cleanly.' I realized then how much of her I had refused because I pretended truth would be easier later.", next:"ending_late_path" },
 
-    pretendEnding: {
-        name: "Shino",
-        speaker: "shino",
-        text: "I’m glad I met you. Even if you forget.",
-        ending: true
-    },
+  /* ENDING: cling (you tried to hold on, but forgot) */
+  ending_cling_path: { endingId:"cling", name:"Airi", speaker:"airi", text:"I filled pages with her. I made albums and recorded her voice. I wanted permanence. One morning I woke with the notebook open to a page about a laugh I could no longer place.", ending:true },
 
-    lateEnding: {
-        name: "Airi",
-        speaker: "airi",
-        text: "I realized too late that love doesn’t wait for certainty.",
-        ending: true
-    }
+  /* ENDING: pretend (they live a soft lie; Shino chooses) */
+  ending_pretend_path: { endingId:"pretend", name:"Shino", speaker:"shino", text:"We lived in the gentle lie of ordinary days. The smiles remained. One evening she looked at me and said, 'I'm glad I met you, even if you forget.' Then she dissolved into the silence between trains.", ending:true },
+
+  /* ENDING: late (you kept distance and regret) */
+  ending_late_path: { endingId:"late", name:"Airi", speaker:"airi", text:"I realized too late that love does not wait for courage. The bench stayed empty. Some grief lives as a small, constant ache — a memory of forgetting.", ending:true }
 };
 
-function renderScene() {
-    const scene = scenes[state.scene];
-    const nameEl = document.getElementById("name");
-    const textEl = document.getElementById("text");
-    const choicesEl = document.getElementById("choices");
+/* -------------------------
+   DOM refs & helpers
+   ------------------------- */
+const startScreen = document.getElementById("startScreen");
+const startBtn = document.getElementById("startBtn");
+const howBtn = document.getElementById("howBtn");
+const howBox = document.getElementById("howBox");
 
-    nameEl.textContent = scene.name || "";
-    textEl.textContent = scene.text;
-    choicesEl.innerHTML = "";
+const nameEl = document.getElementById("name");
+const lineEl = document.getElementById("line");
+const choicesEl = document.getElementById("choices");
+const airiImg = document.getElementById("airi");
+const shinoImg = document.getElementById("shino");
+const meterBar = document.getElementById("meterBar");
 
-    document.getElementById("airi").style.display = "none";
-    document.getElementById("shino").style.display = "none";
+const endingOverlay = document.getElementById("endingOverlay");
+const endingTitle = document.getElementById("endingTitle");
+const endingText = document.getElementById("endingText");
+const endingRestart = document.getElementById("endingRestart");
+const endingTitleBtn = document.getElementById("endingTitleBtn");
 
-    if (scene.speaker === "airi") {
-        document.getElementById("airi").style.display = "block";
-    }
+/* toggle how to play */
+howBtn.addEventListener("click", ()=>{ howBox.style.display = howBox.style.display === "none" ? "block" : "none"; });
 
-    if (scene.speaker === "shino") {
-        const shino = document.getElementById("shino");
-        shino.style.display = "block";
-        shino.classList.toggle("fading", state.closeness >= 3);
-    }
+/* start game */
+startBtn.addEventListener("click", ()=>{ startScreen.style.display="none"; state.started=true; renderScene(); });
 
-    if (scene.ending) {
-        textEl.classList.add("ending");
-        const btn = document.createElement("button");
-        btn.textContent = "Restart";
-        btn.className = "choice";
-        btn.onclick = () => {
-            state = { scene: "intro1", closeness: 0 };
-            textEl.classList.remove("ending");
-            renderScene();
-        };
-        choicesEl.appendChild(btn);
-        return;
-    }
+/* ending buttons */
+endingRestart.addEventListener("click", ()=>{ endingOverlay.style.display="none"; startNewGame(); });
+endingTitleBtn.addEventListener("click", ()=>{ endingOverlay.style.display="none"; showStartScreen(); });
 
-    if (scene.next) {
-        const btn = document.createElement("button");
-        btn.textContent = "Continue";
-        btn.className = "choice";
-        btn.onclick = () => {
-            state.scene = scene.next;
-            renderScene();
-        };
-        choicesEl.appendChild(btn);
-    }
+/* start / title helpers */
+function showStartScreen(){ startScreen.style.display = "flex"; state = { scene:"s_intro_1", closeness:0, started:false }; updateMeter(); hideAllSprites(); updateBackground(false); nameEl.textContent=""; lineEl.textContent=""; choicesEl.innerHTML=""; }
+function startNewGame(){ state = { scene:"s_intro_1", closeness:0, started:true }; renderScene(); }
 
-    if (scene.choices) {
-        scene.choices.forEach(choice => {
-            const btn = document.createElement("button");
-            btn.textContent = choice.text;
-            btn.className = "choice";
-            btn.onclick = () => {
-                state.scene = choice.next;
-                state.closeness += choice.closeness || 0;
-                renderScene();
-            };
-            choicesEl.appendChild(btn);
-        });
-    }
+/* update memory meter UI (0..6 mapped to 0..100%) */
+function updateMeter(){
+  const pct = Math.min(100, Math.round((state.closeness/6)*100));
+  meterBar.style.width = pct + "%";
+  // tint background slightly when meter high
+  document.getElementById("background").style.filter = `brightness(${0.85 - Math.min(0.2, state.closeness*0.02)}) saturate(0.95)`;
 }
 
-renderScene();
+/* hide sprites */
+function hideAllSprites(){ airiImg.style.display="none"; shinoImg.style.display="none"; airiImg.classList.remove("fading"); shinoImg.classList.remove("fading"); }
+
+/* render current scene */
+function renderScene(){
+  const scene = scenes[state.scene];
+  if(!scene){ console.error("Scene missing:", state.scene); return; }
+
+  // show sprites as needed
+  hideAllSprites();
+
+  if(scene.speaker === "airi"){ airiImg.style.display="block"; }
+  if(scene.speaker === "shino"){ shinoImg.style.display="block"; }
+
+  // If closeness threshold reached, animate shino fading
+  if(state.closeness >= 4){ shinoImg.classList.add("fading"); } else { shinoImg.classList.remove("fading"); }
+
+  // set name and text
+  nameEl.textContent = scene.name || "";
+  lineEl.textContent = scene.text || "";
+
+  // update choices / continue button
+  choicesEl.innerHTML = "";
+
+  // If it's an ending:
+  if(scene.ending){
+    // slow meter growth for dramatic effect
+    updateMeter();
+    // show an ending overlay with unique content
+    setTimeout(()=>{ showEnding(scene.endingId || scene.endingId) }, 700);
+    // also show a minimal local "Continue" to allow user to click if they want to progress earlier
+    const cont = document.createElement("button");
+    cont.className = "choice";
+    cont.textContent = "Receive the ending";
+    cont.onclick = ()=>{ showEnding(scene.endingId); };
+    choicesEl.appendChild(cont);
+    return;
+  }
+
+  // If next property present (auto-continue style), show 'Continue' button
+  if(scene.next){
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = "Continue";
+    btn.onclick = ()=>{
+      if(scene.next){
+        state.scene = scene.next;
+      }
+      // if a choice added closeness previously via the last choice, closeness already added when chosen
+      updateMeter();
+      renderScene();
+    };
+    choicesEl.appendChild(btn);
+  }
+
+  // If choices array present, render them
+  if(scene.choices){
+    scene.choices.forEach(ch=>{
+      const b = document.createElement("button");
+      b.className = "choice";
+      b.textContent = ch.text;
+      b.onclick = ()=>{
+        // add closeness if any
+        state.closeness = Math.min(6, state.closeness + (ch.closeness || 0));
+        // update meter immediately
+        updateMeter();
+        // change scene
+        state.scene = ch.next;
+        // render next
+        renderScene();
+      };
+      choicesEl.appendChild(b);
+    });
+  }
+}
+
+/* show ending overlay with bespoke text */
+function showEnding(id){
+  // default title/text
+  let title = "Ending";
+  let text = "An ending has arrived.";
+  if(id === "cling"){
+    title = "Pages of Silence";
+    text = "You tried to hold on. You filled pages and albums and recordings, and still one morning the shape of her laugh slipped from your mind. The notebooks remained—beautiful evidence of a love you could no longer recall. Sometimes love is an ache that survives even when its shape does not.";
+  } else if(id === "pretend"){
+    title = "Quiet Promise";
+    text = "You shared small ordinary days and the warmth of a gentle lie. She chose not to steal your life; she chose instead to become the soft story you keep. Later, when you open a book or hear a distant laugh, fragments of her will visit like a half-remembered dream.";
+  } else if(id === "late"){
+    title = "An Empty Bench";
+    text = "You kept your distance believing it was kindness or prudence. When courage finally came, it arrived too late. The bench is empty. Some regrets live as a constant, thin sound—like a train that never quite arrives.";
+  } else {
+    title = "A Quiet End";
+    text = "The story has concluded.";
+  }
+
+  endingTitle.textContent = title;
+  endingText.textContent = text;
+  endingOverlay.style.display = "flex";
+}
+
+/* initial UI */
+showStartScreen();
+
+/* For desktop: allow clicking anywhere on #ui to progress if single continue exists.
+   For mobile, we keep explicit buttons for clarity. */
+document.getElementById("ui").addEventListener("click", (e)=>{
+  // ignore clicks on buttons
+  if(e.target.tagName === "BUTTON") return;
+  const scene = scenes[state.scene];
+  if(scene && scene.next && (!scene.choices || scene.choices.length===0)){
+    state.scene = scene.next;
+    renderScene();
+  }
+});
 </script>
 
 </body>
