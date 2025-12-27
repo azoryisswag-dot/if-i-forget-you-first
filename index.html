@@ -3,60 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <title>If I Forget You First</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+
 <style>
-    body {
-        background: #0f0f14;
-        color: #e6e6eb;
-        font-family: "Georgia", serif;
-        margin: 0;
-        padding: 0;
-    }
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: black;
+    font-family: "Georgia", serif;
+    overflow: hidden;
+}
 
-    #game {
-        max-width: 800px;
-        margin: 50px auto;
-        padding: 30px;
-        background: rgba(20, 20, 30, 0.9);
-        border-radius: 10px;
-    }
+/* ===== BACKGROUND ===== */
+#background {
+    position: fixed;
+    inset: 0;
+    background: url("bg_station.jpg") center / cover no-repeat;
+    filter: brightness(0.75);
+}
 
-    #name {
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #cfa9ff;
-    }
+/* ===== SPRITES ===== */
+.sprite {
+    position: absolute;
+    bottom: 110px;
+    width: 40%;
+    max-width: 300px;
+    transition: opacity 0.6s, filter 0.6s;
+}
 
-    #text {
-        min-height: 120px;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
+#airi {
+    left: 5%;
+}
 
-    .choice {
-        display: block;
-        margin: 8px 0;
-        padding: 10px;
-        background: #1e1e2e;
-        border: none;
-        color: #e6e6eb;
-        cursor: pointer;
-        border-radius: 5px;
-        text-align: left;
-    }
+#shino {
+    right: 5%;
+}
 
-    .choice:hover {
-        background: #2a2a40;
-    }
+.fading {
+    opacity: 0.4;
+    filter: blur(2px);
+}
 
-    .fading {
-        opacity: 0.6;
-        filter: blur(0.5px);
-    }
+/* ===== TEXT BOX ===== */
+#textbox {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: rgba(15, 15, 25, 0.9);
+    border-top: 2px solid rgba(255,255,255,0.1);
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+#name {
+    font-weight: bold;
+    color: #d6b3ff;
+    margin-bottom: 6px;
+}
+
+#text {
+    color: #f0f0f5;
+    line-height: 1.6;
+    min-height: 70px;
+}
+
+/* ===== CHOICES ===== */
+#choices {
+    margin-top: 12px;
+}
+
+.choice {
+    width: 100%;
+    margin-top: 6px;
+    padding: 12px;
+    font-size: 16px;
+    background: rgba(30,30,50,0.95);
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+}
+
+.choice:hover {
+    background: rgba(60,60,90,1);
+}
 </style>
 </head>
+
 <body>
 
-<div id="game">
+<div id="background"></div>
+
+<img id="airi" class="sprite" src="airi.png" style="display:none;">
+<img id="shino" class="sprite" src="shino.png" style="display:none;">
+
+<div id="textbox">
     <div id="name"></div>
     <div id="text"></div>
     <div id="choices"></div>
@@ -71,7 +113,8 @@ let state = {
 const scenes = {
     start: {
         name: "Airi",
-        text: "I met her at the train station café. She never stayed long. She always looked like she was waiting for something she knew wouldn’t come.",
+        speaker: "airi",
+        text: "I met her at the train station café. She never stayed long.",
         choices: [
             { text: "Talk to her again", next: "meetShino", closeness: 1 },
             { text: "Keep your distance", next: "distance", closeness: 0 }
@@ -80,6 +123,7 @@ const scenes = {
 
     meetShino: {
         name: "Shino",
+        speaker: "shino",
         text: "You don’t have to remember me. Most people don’t.",
         choices: [
             { text: "I want to know you", next: "closeRoute", closeness: 2 },
@@ -89,6 +133,7 @@ const scenes = {
 
     question: {
         name: "Shino",
+        speaker: "shino",
         text: "Because things that stay too long tend to disappear suddenly.",
         choices: [
             { text: "Stay anyway", next: "closeRoute", closeness: 2 },
@@ -96,37 +141,42 @@ const scenes = {
         ]
     },
 
-    distance: {
-        name: "Airi",
-        text: "I kept my heart quiet. I told myself it was safer this way.",
-        choices: [
-            { text: "Confess too late", next: "lateConfession", closeness: 0 }
-        ]
-    },
-
     closeRoute: {
         name: "Airi",
-        text: "The closer I got, the more something felt… wrong. Like she was slipping through my fingers.",
+        speaker: "airi",
+        text: "The closer I got, the more something felt wrong. Like she was slipping away.",
         choices: [
             { text: "Cling to her", next: "clingEnding", closeness: 3 },
             { text: "Pretend everything is normal", next: "pretendEnding", closeness: 3 }
         ]
     },
 
+    distance: {
+        name: "Airi",
+        speaker: "airi",
+        text: "I told myself distance would hurt less.",
+        choices: [
+            { text: "Confess too late", next: "lateEnding", closeness: 0 }
+        ]
+    },
+
     clingEnding: {
         name: "Airi",
-        text: "I wrote everything down. Every smile. Every word. And still—one morning—I couldn’t remember who the notes were about.",
+        speaker: "airi",
+        text: "I wrote everything down. And still—one morning—I couldn’t remember who it was about.",
         ending: true
     },
 
     pretendEnding: {
         name: "Shino",
+        speaker: "shino",
         text: "I’m glad I met you. Even if you forget.",
         ending: true
     },
 
-    lateConfession: {
+    lateEnding: {
         name: "Airi",
+        speaker: "airi",
         text: "I told her I loved her. She was already gone.",
         ending: true
     }
@@ -134,19 +184,24 @@ const scenes = {
 
 function renderScene() {
     const scene = scenes[state.scene];
-    const nameDiv = document.getElementById("name");
-    const textDiv = document.getElementById("text");
-    const choicesDiv = document.getElementById("choices");
 
-    nameDiv.textContent = scene.name || "";
-    textDiv.textContent = scene.text;
+    document.getElementById("name").textContent = scene.name;
+    document.getElementById("text").textContent = scene.text;
+    const choicesDiv = document.getElementById("choices");
     choicesDiv.innerHTML = "";
 
-    // Fading effect if closeness is high
-    if (state.closeness >= 3 && scene.name === "Shino") {
-        textDiv.classList.add("fading");
-    } else {
-        textDiv.classList.remove("fading");
+    // Sprites
+    document.getElementById("airi").style.display = "none";
+    document.getElementById("shino").style.display = "none";
+
+    if (scene.speaker === "airi") {
+        document.getElementById("airi").style.display = "block";
+    }
+
+    if (scene.speaker === "shino") {
+        const shino = document.getElementById("shino");
+        shino.style.display = "block";
+        shino.classList.toggle("fading", state.closeness >= 3);
     }
 
     if (scene.ending) {
