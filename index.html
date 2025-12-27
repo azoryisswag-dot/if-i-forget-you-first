@@ -21,72 +21,100 @@ html, body {
     position: fixed;
     inset: 0;
     background: url("bg_station.jpeg") center / cover no-repeat;
-    filter: brightness(0.75);
+    filter: brightness(0.65) saturate(0.9);
+}
+
+/* ===== OVERLAY (SOFT VIGNETTE) ===== */
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(
+        circle at center,
+        rgba(0,0,0,0.2),
+        rgba(0,0,0,0.7)
+    );
 }
 
 /* ===== SPRITES ===== */
 .sprite {
     position: absolute;
-    bottom: 110px;
-    width: 40%;
-    max-width: 300px;
-    transition: opacity 0.6s, filter 0.6s;
+    bottom: 140px;
+    width: 38%;
+    max-width: 320px;
+    transition: opacity 0.8s, filter 0.8s, transform 0.8s;
 }
 
 #airi {
-    left: 5%;
+    left: 4%;
 }
 
 #shino {
-    right: 5%;
+    right: 4%;
 }
 
 .fading {
-    opacity: 0.4;
-    filter: blur(2px);
+    opacity: 0.35;
+    filter: blur(2.5px);
+    transform: translateY(10px);
 }
 
-/* ===== TEXT BOX ===== */
+/* ===== TEXTBOX ===== */
 #textbox {
     position: absolute;
     bottom: 0;
     width: 100%;
-    background: rgba(15, 15, 25, 0.9);
-    border-top: 2px solid rgba(255,255,255,0.1);
-    padding: 16px;
+    padding: 18px 20px 22px;
     box-sizing: border-box;
+
+    background: linear-gradient(
+        to top,
+        rgba(10,10,20,0.95),
+        rgba(10,10,20,0.75)
+    );
+
+    border-top: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.7);
 }
 
 #name {
     font-weight: bold;
-    color: #d6b3ff;
-    margin-bottom: 6px;
+    color: #d9b8ff;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
 }
 
 #text {
-    color: #f0f0f5;
-    line-height: 1.6;
-    min-height: 70px;
+    color: #f2f2f6;
+    line-height: 1.7;
+    min-height: 90px;
+    font-size: 16px;
 }
 
 /* ===== CHOICES ===== */
 #choices {
-    margin-top: 12px;
+    margin-top: 14px;
 }
 
 .choice {
     width: 100%;
-    margin-top: 6px;
-    padding: 12px;
-    font-size: 16px;
-    background: rgba(30,30,50,0.95);
-    border: none;
-    color: #fff;
-    border-radius: 6px;
+    margin-top: 8px;
+    padding: 14px;
+    font-size: 15px;
+    background: rgba(35,35,60,0.95);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #ffffff;
+    border-radius: 8px;
 }
 
 .choice:hover {
-    background: rgba(60,60,90,1);
+    background: rgba(60,60,95,1);
+}
+
+/* ===== ENDING TEXT ===== */
+.ending {
+    text-align: center;
+    font-style: italic;
+    opacity: 0.9;
 }
 </style>
 </head>
@@ -94,6 +122,7 @@ html, body {
 <body>
 
 <div id="background"></div>
+<div id="overlay"></div>
 
 <img id="airi" class="sprite" src="airi.png" style="display:none;">
 <img id="shino" class="sprite" src="shino.png" style="display:none;">
@@ -106,64 +135,104 @@ html, body {
 
 <script>
 let state = {
-    scene: "start",
+    scene: "intro1",
     closeness: 0
 };
 
 const scenes = {
-    start: {
+    intro1: {
         name: "Airi",
         speaker: "airi",
-        text: "I met her at the train station café. She never stayed long.",
+        text: "I started noticing her in the evenings—always the same time, always the same train. She never rushed. She never lingered either.",
+        next: "intro2"
+    },
+
+    intro2: {
+        name: "Airi",
+        speaker: "airi",
+        text: "There was something fragile about the way she stood on the platform. Like she was afraid the world might forget she was there.",
+        next: "intro3"
+    },
+
+    intro3: {
+        name: "Airi",
+        speaker: "airi",
+        text: "One night, she looked at me directly. And smiled—like she already knew how this would end.",
         choices: [
-            { text: "Talk to her again", next: "meetShino", closeness: 1 },
-            { text: "Keep your distance", next: "distance", closeness: 0 }
+            { text: "Speak to her", next: "meetShino", closeness: 1 },
+            { text: "Look away", next: "distanceStart", closeness: 0 }
         ]
     },
 
     meetShino: {
         name: "Shino",
         speaker: "shino",
-        text: "You don’t have to remember me. Most people don’t.",
+        text: "You don’t have to stay. People usually don’t.",
         choices: [
-            { text: "I want to know you", next: "closeRoute", closeness: 2 },
-            { text: "Why would you say that?", next: "question", closeness: 1 }
+            { text: "I want to", next: "talk1", closeness: 1 },
+            { text: "Why do you say that?", next: "talk2", closeness: 1 }
         ]
     },
 
-    question: {
+    talk1: {
+        name: "Airi",
+        speaker: "airi",
+        text: "I surprised myself by sitting beside her. The bench felt colder than it should’ve.",
+        next: "talk3"
+    },
+
+    talk2: {
         name: "Shino",
         speaker: "shino",
-        text: "Because things that stay too long tend to disappear suddenly.",
+        text: "Because memories are heavier than people think.",
+        next: "talk3"
+    },
+
+    talk3: {
+        name: "Shino",
+        speaker: "shino",
+        text: "If you carry too many, eventually something has to be dropped.",
         choices: [
-            { text: "Stay anyway", next: "closeRoute", closeness: 2 },
-            { text: "Step back", next: "distance", closeness: 0 }
+            { text: "Take her hand", next: "closeRoute", closeness: 2 },
+            { text: "Say nothing", next: "distanceStart", closeness: 0 }
         ]
     },
 
     closeRoute: {
         name: "Airi",
         speaker: "airi",
-        text: "The closer I got, the more something felt wrong. Like she was slipping away.",
+        text: "Being with her felt like standing on the edge of something endless. Beautiful. Terrifying.",
+        next: "closeRoute2"
+    },
+
+    closeRoute2: {
+        name: "Shino",
+        speaker: "shino",
+        text: "Promise me something. Don’t try too hard to remember.",
         choices: [
-            { text: "Cling to her", next: "clingEnding", closeness: 3 },
-            { text: "Pretend everything is normal", next: "pretendEnding", closeness: 3 }
+            { text: "I promise", next: "clingEnding", closeness: 3 },
+            { text: "I can’t promise that", next: "pretendEnding", closeness: 3 }
         ]
     },
 
-    distance: {
+    distanceStart: {
         name: "Airi",
         speaker: "airi",
-        text: "I told myself distance would hurt less.",
-        choices: [
-            { text: "Confess too late", next: "lateEnding", closeness: 0 }
-        ]
+        text: "I kept my distance. Told myself it was maturity. Or fear. Or kindness.",
+        next: "distance2"
+    },
+
+    distance2: {
+        name: "Airi",
+        speaker: "airi",
+        text: "Weeks passed. Then months. One evening, her seat was empty.",
+        next: "lateEnding"
     },
 
     clingEnding: {
         name: "Airi",
         speaker: "airi",
-        text: "I wrote everything down. And still—one morning—I couldn’t remember who it was about.",
+        text: "I wrote everything down. Her voice. Her habits. Her name. And still—one morning—I couldn’t remember who the notes were about.",
         ending: true
     },
 
@@ -177,20 +246,21 @@ const scenes = {
     lateEnding: {
         name: "Airi",
         speaker: "airi",
-        text: "I told her I loved her. She was already gone.",
+        text: "I realized too late that love doesn’t wait for certainty.",
         ending: true
     }
 };
 
 function renderScene() {
     const scene = scenes[state.scene];
+    const nameEl = document.getElementById("name");
+    const textEl = document.getElementById("text");
+    const choicesEl = document.getElementById("choices");
 
-    document.getElementById("name").textContent = scene.name;
-    document.getElementById("text").textContent = scene.text;
-    const choicesDiv = document.getElementById("choices");
-    choicesDiv.innerHTML = "";
+    nameEl.textContent = scene.name || "";
+    textEl.textContent = scene.text;
+    choicesEl.innerHTML = "";
 
-    // Sprites
     document.getElementById("airi").style.display = "none";
     document.getElementById("shino").style.display = "none";
 
@@ -205,28 +275,43 @@ function renderScene() {
     }
 
     if (scene.ending) {
+        textEl.classList.add("ending");
         const btn = document.createElement("button");
         btn.textContent = "Restart";
         btn.className = "choice";
         btn.onclick = () => {
-            state = { scene: "start", closeness: 0 };
+            state = { scene: "intro1", closeness: 0 };
+            textEl.classList.remove("ending");
             renderScene();
         };
-        choicesDiv.appendChild(btn);
+        choicesEl.appendChild(btn);
         return;
     }
 
-    scene.choices.forEach(choice => {
+    if (scene.next) {
         const btn = document.createElement("button");
-        btn.textContent = choice.text;
+        btn.textContent = "Continue";
         btn.className = "choice";
         btn.onclick = () => {
-            state.scene = choice.next;
-            state.closeness += choice.closeness || 0;
+            state.scene = scene.next;
             renderScene();
         };
-        choicesDiv.appendChild(btn);
-    });
+        choicesEl.appendChild(btn);
+    }
+
+    if (scene.choices) {
+        scene.choices.forEach(choice => {
+            const btn = document.createElement("button");
+            btn.textContent = choice.text;
+            btn.className = "choice";
+            btn.onclick = () => {
+                state.scene = choice.next;
+                state.closeness += choice.closeness || 0;
+                renderScene();
+            };
+            choicesEl.appendChild(btn);
+        });
+    }
 }
 
 renderScene();
