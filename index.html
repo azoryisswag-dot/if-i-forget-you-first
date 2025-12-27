@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>If I Forget You First</title>
+<style>
+    body {
+        background: #0f0f14;
+        color: #e6e6eb;
+        font-family: "Georgia", serif;
+        margin: 0;
+        padding: 0;
+    }
+
+    #game {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 30px;
+        background: rgba(20, 20, 30, 0.9);
+        border-radius: 10px;
+    }
+
+    #name {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #cfa9ff;
+    }
+
+    #text {
+        min-height: 120px;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .choice {
+        display: block;
+        margin: 8px 0;
+        padding: 10px;
+        background: #1e1e2e;
+        border: none;
+        color: #e6e6eb;
+        cursor: pointer;
+        border-radius: 5px;
+        text-align: left;
+    }
+
+    .choice:hover {
+        background: #2a2a40;
+    }
+
+    .fading {
+        opacity: 0.6;
+        filter: blur(0.5px);
+    }
+</style>
+</head>
+<body>
+
+<div id="game">
+    <div id="name"></div>
+    <div id="text"></div>
+    <div id="choices"></div>
+</div>
+
+<script>
+let state = {
+    scene: "start",
+    closeness: 0
+};
+
+const scenes = {
+    start: {
+        name: "Airi",
+        text: "I met her at the train station café. She never stayed long. She always looked like she was waiting for something she knew wouldn’t come.",
+        choices: [
+            { text: "Talk to her again", next: "meetShino", closeness: 1 },
+            { text: "Keep your distance", next: "distance", closeness: 0 }
+        ]
+    },
+
+    meetShino: {
+        name: "Shino",
+        text: "You don’t have to remember me. Most people don’t.",
+        choices: [
+            { text: "I want to know you", next: "closeRoute", closeness: 2 },
+            { text: "Why would you say that?", next: "question", closeness: 1 }
+        ]
+    },
+
+    question: {
+        name: "Shino",
+        text: "Because things that stay too long tend to disappear suddenly.",
+        choices: [
+            { text: "Stay anyway", next: "closeRoute", closeness: 2 },
+            { text: "Step back", next: "distance", closeness: 0 }
+        ]
+    },
+
+    distance: {
+        name: "Airi",
+        text: "I kept my heart quiet. I told myself it was safer this way.",
+        choices: [
+            { text: "Confess too late", next: "lateConfession", closeness: 0 }
+        ]
+    },
+
+    closeRoute: {
+        name: "Airi",
+        text: "The closer I got, the more something felt… wrong. Like she was slipping through my fingers.",
+        choices: [
+            { text: "Cling to her", next: "clingEnding", closeness: 3 },
+            { text: "Pretend everything is normal", next: "pretendEnding", closeness: 3 }
+        ]
+    },
+
+    clingEnding: {
+        name: "Airi",
+        text: "I wrote everything down. Every smile. Every word. And still—one morning—I couldn’t remember who the notes were about.",
+        ending: true
+    },
+
+    pretendEnding: {
+        name: "Shino",
+        text: "I’m glad I met you. Even if you forget.",
+        ending: true
+    },
+
+    lateConfession: {
+        name: "Airi",
+        text: "I told her I loved her. She was already gone.",
+        ending: true
+    }
+};
+
+function renderScene() {
+    const scene = scenes[state.scene];
+    const nameDiv = document.getElementById("name");
+    const textDiv = document.getElementById("text");
+    const choicesDiv = document.getElementById("choices");
+
+    nameDiv.textContent = scene.name || "";
+    textDiv.textContent = scene.text;
+    choicesDiv.innerHTML = "";
+
+    // Fading effect if closeness is high
+    if (state.closeness >= 3 && scene.name === "Shino") {
+        textDiv.classList.add("fading");
+    } else {
+        textDiv.classList.remove("fading");
+    }
+
+    if (scene.ending) {
+        const btn = document.createElement("button");
+        btn.textContent = "Restart";
+        btn.className = "choice";
+        btn.onclick = () => {
+            state = { scene: "start", closeness: 0 };
+            renderScene();
+        };
+        choicesDiv.appendChild(btn);
+        return;
+    }
+
+    scene.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.textContent = choice.text;
+        btn.className = "choice";
+        btn.onclick = () => {
+            state.scene = choice.next;
+            state.closeness += choice.closeness || 0;
+            renderScene();
+        };
+        choicesDiv.appendChild(btn);
+    });
+}
+
+renderScene();
+</script>
+
+</body>
+</html>
