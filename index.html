@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>If I Forget You First — Demo</title>
+<title>If I Forget You First</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -11,11 +11,12 @@
 :root {
   --bg-color: #050508;
   --accent: #d4b3ff;
-  --accent-glow: rgba(212, 179, 255, 0.4);
+  --accent-bright: #e5d4ff;
   --text: #eef0f6;
   --muted: #9499b0;
-  --panel-bg: rgba(12, 10, 18, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(12, 10, 18, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --ui-width: 900px;
 }
 
 * { box-sizing: border-box; }
@@ -24,176 +25,164 @@ body, html {
     background: var(--bg-color); 
     font-family: 'Inter', sans-serif; 
     overflow: hidden; 
+    color: var(--text);
 }
 
-/* --- Background & Effects --- */
+/* --- Responsive Background --- */
 #background {
   position: fixed; inset: 0;
-  background: url("bg_station.jpeg") center/cover no-repeat;
-  filter: brightness(0.5) saturate(0.8);
-  transition: filter 1s ease, transform 10s ease-in-out;
+  background: #000 url("bg_station.jpeg") center/cover no-repeat;
+  filter: brightness(0.6) saturate(0.8);
+  transition: filter 1.5s ease;
+  z-index: 1;
 }
 
 #vignette { 
   position: fixed; inset: 0; pointer-events: none;
-  background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%);
+  background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.7) 100%);
   z-index: 2;
 }
 
-/* --- Stage Layout --- */
+/* --- Sprite Layer --- */
 #stage {
   position: relative;
   width: 100%;
-  max-width: 1100px;
   height: 100vh;
   margin: 0 auto;
-  overflow: hidden;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
 }
 
-/* --- Sprites --- */
 .sprite {
   position: absolute;
   bottom: 0;
-  width: 45%;
-  max-width: 450px;
-  filter: drop-shadow(0 0 20px rgba(0,0,0,0.5));
+  height: 85vh; /* Larger on PC */
   transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  z-index: 3;
-  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
+  animation: float 5s ease-in-out infinite;
 }
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-15px); }
 }
 
-#airi { left: 5%; transform-origin: bottom center; }
-#shino { right: 5%; transform-origin: bottom center; }
-.fading { opacity: 0.3; filter: blur(4px) grayscale(0.5); transform: scale(0.95); }
+#airi { left: 10%; }
+#shino { right: 10%; }
+.fading { opacity: 0.3; filter: blur(5px) grayscale(0.8); }
 
-/* --- UI - Textbox --- */
-#ui-container {
+/* --- Cinematic UI --- */
+#ui-wrapper {
   position: absolute;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 90%;
-  max-width: 850px;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 40px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
   z-index: 10;
-}
-
-#nameplate {
-  position: absolute;
-  top: -20px;
-  left: 30px;
-  background: linear-gradient(135deg, #2a2438, #16141d);
-  color: var(--accent);
-  padding: 8px 25px;
-  border-radius: 4px;
-  font-family: 'Merriweather', serif;
-  font-weight: 700;
-  border: 1px solid var(--glass-border);
-  box-shadow: 4px 4px 15px rgba(0,0,0,0.5);
-  z-index: 11;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-#textbox {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  padding: 35px 40px 25px;
-  border-radius: 8px;
-  min-height: 160px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.8);
-  cursor: pointer;
-}
-
-#line {
-  color: var(--text);
-  font-family: 'Merriweather', serif;
-  font-size: 1.15rem;
-  line-height: 1.8;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-}
-
-/* Advance Icon */
-#advance-icon {
-  position: absolute;
-  bottom: 15px;
-  right: 20px;
-  color: var(--accent);
-  font-size: 20px;
-  animation: pulse 1.5s infinite;
-  opacity: 0;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.3; transform: translateY(0); }
-  50% { opacity: 1; transform: translateY(5px); }
-}
-
-/* --- Choices Overlay --- */
-#choices-overlay {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 15px;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(4px);
-  z-index: 20;
+}
+
+#nameplate {
+  width: 100%;
+  max-width: var(--ui-width);
+  margin-bottom: 8px;
+  font-family: 'Merriweather', serif;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(212, 179, 255, 0.5);
+}
+
+#textbox {
+  width: 100%;
+  max-width: var(--ui-width);
+  min-height: 160px;
+  padding: 30px 40px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--glass-border);
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.3s;
+}
+
+#textbox:hover { border-color: rgba(212, 179, 255, 0.3); }
+
+#line {
+  font-family: 'Merriweather', serif;
+  font-size: 1.25rem;
+  line-height: 1.8;
+  margin: 0;
+}
+
+/* --- Choice System --- */
+#choices-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 8, 0.6);
+  backdrop-filter: blur(8px);
   display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  z-index: 50;
 }
 
 .choice-btn {
-  width: 80%;
-  max-width: 400px;
-  padding: 18px;
-  background: rgba(20, 18, 28, 0.9);
-  border: 1px solid var(--accent);
+  width: 90%;
+  max-width: 500px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
   color: var(--text);
-  border-radius: 50px;
+  font-size: 1.1rem;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
-  font-size: 1rem;
-  transition: 0.3s;
+  transition: all 0.3s;
   text-align: center;
 }
 
 .choice-btn:hover {
   background: var(--accent);
   color: #000;
-  box-shadow: 0 0 20px var(--accent-glow);
-  transform: scale(1.02);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
 }
 
-/* --- Menus & Screens --- */
-.modal-screen {
-  position: fixed; inset: 0;
+/* --- Memory Meter --- */
+#top-hud {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
   z-index: 100;
-  background: var(--bg-color);
-  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.4);
+  padding: 10px 20px;
+  border-radius: 50px;
+  border: 1px solid var(--glass-border);
 }
 
-#startCard {
-  text-align: center;
-  max-width: 500px;
-}
+#meter-bg { width: 120px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; }
+#meter-fill { height: 100%; width: 0%; background: var(--accent); transition: width 1s ease; }
 
-.primary-btn {
-  background: var(--accent);
-  color: #050508;
-  border: none;
-  padding: 12px 40px;
-  border-radius: 4px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 20px;
-  font-size: 1rem;
+/* --- Mobile Fixes --- */
+@media (max-width: 768px) {
+  #ui-wrapper { padding: 15px; }
+  #textbox { padding: 20px; min-height: 180px; }
+  #line { font-size: 1.05rem; }
+  .sprite { height: 70vh; }
+  #top-hud { top: 10px; right: 10px; scale: 0.8; }
 }
 </style>
 </head>
@@ -202,122 +191,140 @@ body, html {
 <div id="background"></div>
 <div id="vignette"></div>
 
-<div id="stage">
-  <img id="airi" class="sprite" src="airi.png" style="display:none;">
-  <img id="shino" class="sprite" src="shino.png" style="display:none;">
-
-  <div id="choices-overlay"></div>
-
-  <div id="ui-container" style="display:none;">
-    <div id="nameplate">Airi</div>
-    <div id="textbox">
-      <div id="line"></div>
-      <div id="advance-icon">▼</div>
-    </div>
-  </div>
+<div id="top-hud">
+    <span style="font-size: 12px; letter-spacing: 1px; color: var(--muted)">MEMORY</span>
+    <div id="meter-bg"><div id="meter-fill"></div></div>
 </div>
 
-<div id="startScreen" class="modal-screen">
-  <div id="startCard">
-    <h1 style="font-family:Merriweather; color:var(--accent); font-size:3rem; margin-bottom:0.5rem;">If I Forget You First</h1>
-    <p style="color:var(--muted); font-style:italic;">A quiet story about the weight of memory.</p>
-    <button class="primary-btn" id="startBtn">BEGIN</button>
-  </div>
+<div id="stage">
+  <img id="airi" class="sprite" src="airi.png" style="opacity:0">
+  <img id="shino" class="sprite" src="shino.png" style="opacity:0">
+</div>
+
+<div id="choices-overlay"></div>
+
+<div id="ui-wrapper" style="display:none;">
+    <div id="nameplate">Airi</div>
+    <div id="textbox" onclick="handleInput()">
+        <p id="line"></p>
+        <div style="position:absolute; bottom:15px; right:20px; font-size:12px; opacity:0.5;">▼</div>
+    </div>
+</div>
+
+<div id="startScreen" style="position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; background:#050508;">
+    <div style="text-align:center;">
+        <h1 style="font-family:Merriweather; font-size:3rem; margin-bottom:10px; color:var(--accent);">If I Forget You First</h1>
+        <button onclick="startGame()" style="background:var(--accent); border:none; padding:15px 50px; border-radius:4px; cursor:pointer; font-weight:700; font-size:1rem;">START DEMO</button>
+    </div>
 </div>
 
 <script>
-// --- Game State ---
-let state = {
-  scene: "s_intro_1",
-  closeness: 0,
-  isTyping: false,
-  currentText: ""
+/* -------------------------
+   Game Data (Fixed Logic)
+   ------------------------- */
+const scenes = {
+  s_intro_1: { speaker: "airi", name: "Airi", text: "Even before I learned her name, I noticed a rhythm to her evenings — the same coat, the same bench, the same distant stare.", next: "s_intro_2" },
+  s_intro_2: { speaker: "airi", name: "Airi", text: "It was the kind of presence that felt like an unfinished sentence. I told myself not to get involved. Trains come and go.", next: "s_intro_3" },
+  s_intro_3: { speaker: "airi", name: "Airi", text: "One night she looked right at me. Not a glance — a look that asked a question I couldn't name.", choices:[ { text:"Approach her", next:"s_meet_1", closeness:1}, { text:"Leave quietly", next:"s_distance_1", closeness:0 } ] },
+  s_meet_1: { speaker: "shino", name: "Shino", text: "You could sit here if you want. It's quieter on this bench.", next: "s_meet_2" },
+  s_meet_2: { speaker: "airi", name: "Airi", text: "I sat. She smelled faintly of winter citrus. Her hands were small and unafraid of the cold.", next: "s_meet_3" },
+  s_meet_3: { speaker: "shino", name: "Shino", text: "Most people don't remember me for long. It's okay. I'm used to it.", choices:[ { text:"What do you mean?", next:"s_reveal_1", closeness:1 }, { text:"That's not true", next:"s_reveal_1", closeness:1 } ] },
+  s_reveal_1: { speaker: "shino", name: "Shino", text: "Some things slip out of memory without warning. If you keep me too close, I might start to go.", next: "s_end_demo" },
+  s_distance_1: { speaker: "airi", name: "Airi", text: "I decided it was safer to stay a stranger. But the memory of her eyes lingered long after the train left.", next: "s_end_demo" },
+  s_end_demo: { speaker: "", name: "SYSTEM", text: "End of Demo. Thank you for playing." }
 };
 
-// --- Scene Data (Same as yours, just demonstrating the engine) ---
-const scenes = {
-  s_intro_1: { speaker: "airi", name: "Airi", text: "Even before I learned her name, I noticed a rhythm to her evenings — the same coat, the same bench, the same distant stare.", next:"s_intro_2" },
-  s_intro_2: { speaker: "airi", name: "Airi", text: "It was the kind of presence that felt like an unfinished sentence. I told myself not to get involved. Trains come and go.", next:"s_intro_3" },
-  s_intro_3: { speaker: "airi", name: "Airi", text: "One night she looked right at me. Not a glance — a look that asked a question I couldn't name.", choices:[ { text:"Approach her", next:"s_meet_1", closeness:1}, { text:"Leave quietly", next:"s_shy_away", closeness:0 } ] },
-  s_meet_1: { speaker: "shino", name: "Shino", text: "You could sit here if you want. It's quieter on this bench.", next:"s_meet_2" },
-  // ... (Include your other scenes here)
+let state = {
+  currentScene: "s_intro_1",
+  closeness: 0,
+  isTyping: false
 };
 
 const lineEl = document.getElementById("line");
 const nameEl = document.getElementById("nameplate");
-const uiContainer = document.getElementById("ui-container");
-const choicesOverlay = document.getElementById("choices-overlay");
-const advanceIcon = document.getElementById("advance-icon");
+const meterFill = document.getElementById("meter-fill");
 
-// --- Typewriter Effect ---
-function typeWriter(text, i = 0) {
-  state.isTyping = true;
-  advanceIcon.style.opacity = "0";
-  
-  if (i < text.length) {
-    lineEl.innerHTML = text.substring(0, i + 1);
-    setTimeout(() => typeWriter(text, i + 1), 30); // 30ms per character
-  } else {
-    state.isTyping = false;
-    advanceIcon.style.opacity = "1";
-    checkAutoChoices();
-  }
+/* -------------------------
+   Engine Logic
+   ------------------------- */
+
+function startGame() {
+    document.getElementById("startScreen").style.display = "none";
+    document.getElementById("ui-wrapper").style.display = "flex";
+    renderScene();
+}
+
+function typeWriter(text) {
+    state.isTyping = true;
+    let i = 0;
+    lineEl.innerHTML = "";
+    
+    function type() {
+        if (i < text.length) {
+            lineEl.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, 25);
+        } else {
+            state.isTyping = false;
+        }
+    }
+    type();
 }
 
 function renderScene() {
-  const scene = scenes[state.scene];
-  if (!scene) return;
+    const scene = scenes[state.currentScene];
+    if (!scene) return;
 
-  // Handle Sprites
-  document.getElementById("airi").style.display = scene.speaker === "airi" ? "block" : "none";
-  document.getElementById("shino").style.display = scene.speaker === "shino" ? "block" : "none";
-  if (state.closeness >= 4) document.getElementById("shino").classList.add("fading");
+    // Update Meter
+    meterFill.style.width = (state.closeness * 20) + "%";
 
-  // Update UI
-  nameEl.textContent = scene.name;
-  choicesOverlay.style.display = "none";
-  typeWriter(scene.text);
+    // Update Character Sprites
+    const airiImg = document.getElementById("airi");
+    const shinoImg = document.getElementById("shino");
+    
+    airiImg.style.opacity = (scene.speaker === "airi") ? "1" : "0";
+    shinoImg.style.opacity = (scene.speaker === "shino") ? "1" : "0";
+    
+    if (state.closeness >= 3) shinoImg.classList.add("fading");
+
+    // Update Text
+    nameEl.textContent = scene.name;
+    typeWriter(scene.text);
+
+    // Prepare Choices
+    const choicesOverlay = document.getElementById("choices-overlay");
+    choicesOverlay.innerHTML = "";
+    choicesOverlay.style.display = "none";
+
+    if (scene.choices) {
+        scene.choices.forEach(ch => {
+            const btn = document.createElement("button");
+            btn.className = "choice-btn";
+            btn.textContent = ch.text;
+            btn.onclick = (e) => {
+                e.stopPropagation(); // Prevent textbox trigger
+                state.closeness += ch.closeness;
+                state.currentScene = ch.next;
+                renderScene();
+            };
+            choicesOverlay.appendChild(btn);
+        });
+    }
 }
 
-function checkAutoChoices() {
-  const scene = scenes[state.scene];
-  if (scene.choices) {
-    setTimeout(() => {
-      choicesOverlay.innerHTML = "";
-      scene.choices.forEach(ch => {
-        const btn = document.createElement("button");
-        btn.className = "choice-btn";
-        btn.textContent = ch.text;
-        btn.onclick = () => {
-          state.closeness += (ch.closeness || 0);
-          state.scene = ch.next;
-          renderScene();
-        };
-        choicesOverlay.appendChild(btn);
-      });
-      choicesOverlay.style.display = "flex";
-    }, 500);
-  }
+function handleInput() {
+    if (state.isTyping) return;
+    
+    const scene = scenes[state.currentScene];
+    
+    // If there are choices, show them. Otherwise, go to 'next'.
+    if (scene.choices) {
+        document.getElementById("choices-overlay").style.display = "flex";
+    } else if (scene.next) {
+        state.currentScene = scene.next;
+        renderScene();
+    }
 }
-
-// Click to advance
-document.getElementById("textbox").addEventListener("click", () => {
-  if (state.isTyping) {
-    // Skip typing (not implemented for simplicity, but could be)
-    return;
-  }
-  const scene = scenes[state.scene];
-  if (scene.next) {
-    state.scene = scene.next;
-    renderScene();
-  }
-});
-
-document.getElementById("startBtn").addEventListener("click", () => {
-  document.getElementById("startScreen").style.display = "none";
-  uiContainer.style.display = "block";
-  renderScene();
-});
 </script>
 </body>
 </html>
