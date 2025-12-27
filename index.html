@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
-<title>If I Forget You First — Full Story</title>
+<title>If I Forget You First — Full Version</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
@@ -11,12 +11,11 @@
 :root {
   --bg-color: #050508;
   --accent: #d4b3ff;
-  --accent-dark: #2a2438;
+  --accent-muted: rgba(212, 179, 255, 0.4);
   --text: #f0f0f5;
   --muted: #9499b0;
-  --lace-color: rgba(212, 179, 255, 0.2);
-  --panel-bg: rgba(10, 8, 15, 0.85);
-  --ui-width: 960px;
+  --panel-bg: rgba(10, 8, 15, 0.88);
+  --lace-border: rgba(212, 179, 255, 0.3);
 }
 
 * { box-sizing: border-box; }
@@ -24,228 +23,235 @@ body, html {
     height: 100%; margin: 0; padding: 0; 
     background: var(--bg-color); 
     font-family: 'Inter', sans-serif; 
-    overflow: hidden; 
-    color: var(--text);
+    overflow: hidden; color: var(--text);
 }
 
-/* --- Atmospheric Background & Particles --- */
+/* --- Visual Effects --- */
 #background {
   position: fixed; inset: 0;
   background: url("https://images.unsplash.com/photo-1518107616985-bd48230d3b20?q=80&w=2070&auto=format&fit=crop") center/cover no-repeat;
-  filter: brightness(0.4) saturate(0.6);
+  filter: brightness(0.45) saturate(0.7);
+  transition: filter 2s ease;
   z-index: 1;
 }
 
-/* Falling "Snow" Animation */
-.snow-container {
-    position: fixed; inset: 0; pointer-events: none; z-index: 2;
+#vignette {
+    position: fixed; inset: 0; pointer-events: none;
+    background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.8) 100%);
+    z-index: 2;
 }
 
-/* --- Stage & Sprites --- */
+/* --- Stage & Characters --- */
 #stage {
   position: relative; width: 100%; height: 100vh;
-  margin: 0 auto; z-index: 3;
-  display: flex; justify-content: center; align-items: flex-end;
+  z-index: 3; display: flex; justify-content: center; align-items: flex-end;
 }
 
 .sprite {
-  position: absolute; bottom: -5%;
-  height: 90vh;
-  transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-  filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
-  opacity: 0;
+  position: absolute; bottom: -2%;
+  height: 92vh; transition: all 1s ease-out;
+  filter: drop-shadow(0 0 40px rgba(0,0,0,0.9));
+  opacity: 0; pointer-events: none;
 }
 
-#airi { left: 15%; transform: translateX(-50px); }
-#shino { right: 15%; transform: translateX(50px); }
+#airi { left: 12%; transform: translateX(-30px); }
+#shino { right: 12%; transform: translateX(30px); }
 .sprite.active { opacity: 1; transform: translateX(0); }
-.sprite.fading { opacity: 0.2; filter: blur(8px) grayscale(1); }
+.sprite.fading { opacity: 0.15; filter: blur(10px) grayscale(1); }
 
-/* --- Lacy UI Design --- */
+/* --- Lacy Textbox Design --- */
 #ui-wrapper {
   position: absolute; bottom: 0; left: 0; width: 100%;
-  padding: 40px; z-index: 10;
+  padding: 30px; z-index: 10;
   display: flex; flex-direction: column; align-items: center;
 }
 
-/* The Ornate Lacy Textbox */
 #textbox {
-  width: 100%; max-width: var(--ui-width);
-  min-height: 180px; padding: 35px 50px;
+  width: 100%; max-width: 1000px;
+  min-height: 180px; padding: 40px 50px;
   background: var(--panel-bg);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(15px);
   border: 2px solid var(--accent);
-  border-radius: 20px;
+  border-radius: 12px;
   position: relative;
-  box-shadow: 0 -10px 50px rgba(0,0,0,0.8), inset 0 0 20px var(--lace-color);
+  box-shadow: 0 -20px 60px rgba(0,0,0,0.9);
   cursor: pointer;
 }
 
-/* Lacy Flourish (SVG Pattern) */
-#textbox::before {
-    content: ""; position: absolute; inset: -10px;
-    border: 20px solid transparent;
-    border-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 0C60 20 80 20 100 0V100C80 80 60 80 50 100C40 80 20 80 0 100V0C20 20 40 20 50 0Z' fill='none' stroke='%23d4b3ff' stroke-width='2' opacity='0.3'/%3E%3C/svg%3E") 30 stretch;
+/* Lacy Flourish Overlay */
+.lace-edge {
+    position: absolute; inset: -5px;
+    border: 15px solid transparent;
+    border-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0C50 20 70 20 80 0V80C70 60 50 60 40 80C30 60 10 60 0 80V0C10 20 30 20 40 0Z' fill='none' stroke='%23d4b3ff' stroke-width='1.5' opacity='0.4'/%3E%3C/svg%3E") 30 stretch;
     pointer-events: none;
 }
 
 #nameplate {
-  position: absolute; top: -25px; left: 60px;
-  font-family: 'Great Vibes', cursive; font-size: 2.2rem;
-  color: var(--accent); padding: 0 20px;
-  background: var(--bg-color); border-radius: 50px;
+  position: absolute; top: -28px; left: 50px;
+  font-family: 'Great Vibes', cursive; font-size: 2.4rem;
+  color: var(--accent); padding: 0 25px;
+  background: var(--bg-color); border-radius: 40px;
   border: 1px solid var(--accent); z-index: 11;
+  text-shadow: 0 0 10px var(--accent-muted);
 }
 
 #line {
-  font-family: 'Merriweather', serif; font-size: 1.2rem;
-  line-height: 1.9; margin: 0; letter-spacing: 0.3px;
+  font-family: 'Merriweather', serif; font-size: 1.25rem;
+  line-height: 1.9; margin: 0; text-shadow: 1px 1px 2px black;
 }
 
-/* --- Control Buttons --- */
+/* --- HUD Controls --- */
 #controls {
     position: absolute; top: -45px; right: 20px;
-    display: flex; gap: 10px;
+    display: flex; gap: 12px;
 }
 
 .small-btn {
-    background: rgba(0,0,0,0.6); border: 1px solid var(--glass-border);
-    color: var(--muted); padding: 5px 15px; border-radius: 20px;
-    font-size: 10px; cursor: pointer; text-transform: uppercase;
-    transition: 0.3s;
+    background: rgba(0,0,0,0.7); border: 1px solid var(--lace-border);
+    color: var(--muted); padding: 6px 18px; border-radius: 20px;
+    font-size: 11px; cursor: pointer; text-transform: uppercase;
+    transition: 0.3s; letter-spacing: 1px;
 }
 
-.small-btn:hover { color: var(--accent); border-color: var(--accent); }
-.small-btn.active { color: #000; background: var(--accent); }
+.small-btn:hover, .small-btn.active { color: var(--accent); border-color: var(--accent); background: #1a1625; }
 
-/* --- Choices & Endings --- */
-#choices-overlay {
-  position: fixed; inset: 0; background: rgba(5, 5, 8, 0.85);
-  display: none; flex-direction: column; justify-content: center; align-items: center; gap: 15px; z-index: 100;
+/* --- Overlays (Choices, Log, Ending) --- */
+.full-overlay {
+  position: fixed; inset: 0; background: rgba(5, 5, 8, 0.95);
+  display: none; flex-direction: column; justify-content: center;
+  align-items: center; gap: 20px; z-index: 100; padding: 40px;
 }
 
 .choice-btn {
-  width: 80%; max-width: 450px; padding: 18px;
-  background: transparent; border: 1px solid var(--accent);
+  width: 90%; max-width: 500px; padding: 20px;
+  background: rgba(212, 179, 255, 0.05); border: 1px solid var(--accent);
   color: var(--text); font-size: 1.1rem; cursor: pointer;
-  transition: 0.4s cubic-bezier(0.19, 1, 0.22, 1); border-radius: 4px;
+  transition: 0.3s; border-radius: 8px; text-align: center;
+}
+.choice-btn:hover { background: var(--accent); color: #000; transform: translateY(-3px); }
+
+#log-container {
+    width: 100%; max-width: 800px; height: 70vh;
+    overflow-y: auto; background: rgba(255,255,255,0.03);
+    padding: 30px; border-radius: 12px; border: 1px solid var(--lace-border);
 }
 
-.choice-btn:hover { background: var(--accent); color: #000; letter-spacing: 2px; }
+.log-entry { margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+.log-name { color: var(--accent); font-weight: bold; font-family: 'Merriweather'; font-size: 0.9rem; }
 
-/* PC vs Mobile */
+/* --- Responsive Layout --- */
+@media (min-width: 1024px) {
+    #ui-wrapper { padding-bottom: 50px; }
+    #line { font-size: 1.35rem; }
+}
 @media (max-width: 768px) {
-  #ui-wrapper { padding: 10px; }
-  #textbox { padding: 25px 30px; border-radius: 10px; }
-  #nameplate { font-size: 1.6rem; left: 30px; }
-  .sprite { height: 60vh; }
+    #textbox { padding: 25px 30px; min-height: 220px; }
+    #nameplate { font-size: 1.8rem; left: 20px; }
+    .sprite { height: 70vh; }
 }
 </style>
 </head>
 <body>
 
 <div id="background"></div>
-<div class="snow-container" id="snow"></div>
+<div id="vignette"></div>
 
 <div id="stage">
   <img id="airi" class="sprite" src="airi.png" alt="">
   <img id="shino" class="sprite" src="shino.png" alt="">
 </div>
 
-<div id="choices-overlay"></div>
+<div id="choices-overlay" class="full-overlay"></div>
+
+<div id="log-overlay" class="full-overlay">
+    <h2 style="font-family:Great Vibes; font-size:3rem; color:var(--accent);">Memory Log</h2>
+    <div id="log-container"></div>
+    <button class="small-btn" onclick="toggleLog()">Close Log</button>
+</div>
+
+<div id="ending-overlay" class="full-overlay">
+    <div id="lace-decoration" class="lace-edge" style="opacity: 0.2; inset: 20px;"></div>
+    <h1 id="end-title" style="font-family:Great Vibes; font-size:5rem; color:var(--accent); margin:0;"></h1>
+    <p id="end-desc" style="max-width:600px; text-align:center; line-height:1.8; color:var(--muted);"></p>
+    <button class="choice-btn" onclick="location.reload()" style="margin-top:30px;">Return to Title</button>
+</div>
 
 <div id="ui-wrapper" style="display:none;">
     <div id="textbox">
+        <div class="lace-edge"></div>
         <div id="nameplate">Airi</div>
         <div id="controls">
             <button class="small-btn" onclick="toggleSkip()" id="skipBtn">Skip: Off</button>
             <button class="small-btn" onclick="toggleLog()">Log</button>
         </div>
         <p id="line"></p>
-        <div id="advance-prompt" style="position:absolute; bottom:15px; right:30px; font-size:14px; color:var(--accent); animation: pulse 2s infinite;">Press to continue...</div>
+        <div style="position:absolute; bottom:15px; right:30px; font-size:12px; color:var(--accent); opacity:0.6;">▼</div>
     </div>
 </div>
 
-<div id="startScreen" style="position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; background: radial-gradient(circle, #1a1625 0%, #050508 100%);">
+<div id="startScreen" style="position:fixed; inset:0; z-index:1000; display:flex; align-items:center; justify-content:center; background:#050508;">
     <div style="text-align:center;">
-        <h1 style="font-family: 'Great Vibes', cursive; font-size:5rem; color:var(--accent); margin-bottom:0;">If I Forget You First</h1>
-        <p style="letter-spacing:4px; color:var(--muted); margin-bottom:40px;">A STORY OF WINTER & WEIGHTLESSNESS</p>
-        <button onclick="startGame()" style="background:none; border: 1px solid var(--accent); color:var(--accent); padding:15px 60px; border-radius:50px; cursor:pointer; font-size:1.2rem; transition:0.4s;" onmouseover="this.style.background='var(--accent)'; this.style.color='#000'">ENTRANCE</button>
+        <h1 style="font-family: 'Great Vibes', cursive; font-size:6rem; color:var(--accent); margin-bottom:0;">If I Forget You First</h1>
+        <p style="letter-spacing:6px; color:var(--muted); margin-bottom:50px; font-size:0.8rem;">A TALE OF WINTER AND WEIGHTLESSNESS</p>
+        <button onclick="startGame()" class="choice-btn">BEGIN STORY</button>
     </div>
 </div>
 
 <script>
 /* -------------------------
-   Extended Script (Framework)
+   Comprehensive Game Data
    ------------------------- */
 const scenes = {
-  // ACT 1: THE MEETING
   start: { speaker: "airi", name: "Airi", text: "The station always felt like a waiting room for the afterlife. Cold, sterile, and filled with people who were technically there, but mentally elsewhere.", next: "s1" },
   s1: { speaker: "airi", name: "Airi", text: "I noticed her on a Tuesday. She was wearing a coat that looked two sizes too big, staring at the tracks like she was reading a poem written in the steel.", next: "s2" },
-  s2: { speaker: "airi", name: "Airi", text: "I told myself I wouldn't speak. In this city, speaking to a stranger is like asking for a burden. And yet...", next: "s3" },
-  s3: { speaker: "airi", name: "Airi", text: "I found my feet moving. The snow was beginning to stick to the platform. It felt like the world was quieting down just to hear me fail at a greeting.", choices: [
+  s2: { speaker: "airi", name: "Airi", text: "I found my feet moving. The snow was beginning to stick to the platform. It felt like the world was quieting down just to hear me fail at a greeting.", choices: [
       { text: "“The trains are late today.”", next: "path_talk", closeness: 1 },
       { text: "Just sit beside her in silence.", next: "path_silent", closeness: 0 }
   ]},
-
-  // PATH: TALKING
-  path_talk: { speaker: "shino", name: "Shino", text: "She didn't look up immediately. Her breath hitched, a small puff of white in the frozen air. 'They aren't late,' she whispered. 'They're just taking their time.'", next: "talk2" },
-  talk2: { speaker: "shino", name: "Shino", text: "She finally turned to me. Her eyes were a strange, pale shade. 'I'm Shino. I think I'm supposed to be waiting for someone, but I can't remember their face.'", next: "talk3" },
-  talk3: { speaker: "airi", name: "Airi", text: "There was a fragility in her voice that made my chest ache. Like glass that had already been cracked and was just waiting for a breeze to shatter.", next: "act2_start" },
-
-  // PATH: SILENT
-  path_silent: { speaker: "airi", name: "Airi", text: "I sat down. The bench was freezing. We sat there for twenty minutes, two statues in a sea of commuters.", next: "silent2" },
-  silent2: { speaker: "shino", name: "Shino", text: "Without looking at me, she reached out and touched the sleeve of my coat. 'You have a very warm presence,' she said softly. 'Thank you for not asking questions.'", next: "act2_start" },
-
-  // ACT 2: THE DEEPENING (Summary for brevity, expand here for 30mins)
-  act2_start: { speaker: "airi", name: "Airi", text: "Weeks passed. Every evening, the same bench. Shino told me about the way her memories felt—like sand slipping through a sieve.", next: "act2_1" },
-  act2_1: { speaker: "shino", name: "Shino", text: "“If I forget the color of the sky, will it still be blue? If I forget you, Airi... will you still be real?”", choices: [
-      { text: "“I’ll remember for both of us.”", next: "climax_near", closeness: 2 },
-      { text: "“We should enjoy the now.”", next: "climax_distant", closeness: 1 }
-  ]},
-
-  // ACT 3: THE ENDINGS
-  climax_near: { speaker: "airi", name: "Airi", text: "The snow is heavy now. Shino's hand feels colder than usual. She looks like she's becoming part of the fog.", next: "ending_check" },
-  
-  // Logic to determine ending based on 'closeness'
-  ending_check: { speaker: "system", name: "System", text: "The winter has reached its peak. The memories have nowhere left to hide.", next: "final_choice" },
-  
+  path_talk: { speaker: "shino", name: "Shino", text: "She finally turned to me. Her eyes were a strange, pale shade. 'I'm Shino. I think I'm supposed to be waiting for someone, but I can't remember their face.'", next: "act2" },
+  path_silent: { speaker: "shino", name: "Shino", text: "Without looking at me, she reached out and touched my sleeve. 'You have a very warm presence,' she said softly. 'Thank you for not asking questions.'", next: "act2" },
+  act2: { speaker: "airi", name: "Airi", text: "Weeks passed. Every evening, the same bench. But the more I learned about her, the more I felt her slipping away...", next: "final_choice" },
   final_choice: { speaker: "shino", name: "Shino", text: "“Airi... it's time. The train is coming. But there’s only one seat. Do you hold onto me, or do you let me go into the white?”", choices: [
-      { text: "Hold her tightly (The Cling Ending)", next: "end_1" },
-      { text: "Let go and wave (The Bittersweet Ending)", next: "end_2" }
+      { text: "Hold her tightly (Cling)", next: "end_1" },
+      { text: "Let go and wave (Release)", next: "end_2" }
   ]},
-
-  end_1: { speaker: "airi", name: "Airi", text: "I grabbed her hand. I wouldn't let go. But as the train pulled in, my hand closed on nothing but cold air. She was gone. I have her name, but I can no longer remember why it makes me cry.", ending: true, title: "Ending 1: Eternal Frost" },
-  end_2: { speaker: "airi", name: "Airi", text: "I let go. She stepped onto the train and smiled. I forgot her name by the time the tail-lights vanished, but my heart felt light, as if a beautiful song had finally finished playing.", ending: true, title: "Ending 2: The Last Train" }
+  end_1: { 
+      speaker: "airi", name: "Airi", 
+      text: "I grabbed her hand. I wouldn't let go. But as the train pulled in, my hand closed on nothing but cold air. She was gone. I have her name, but I can no longer remember why it makes me cry.", 
+      ending: true, 
+      title: "Eternal Frost", 
+      desc: "You chose to hold onto a ghost. Now you carry a name with no face, and a grief with no origin."
+  },
+  end_2: { 
+      speaker: "airi", name: "Airi", 
+      text: "I let go. She stepped onto the train and smiled. I forgot her name by the time the tail-lights vanished, but my heart felt light, as if a beautiful song had finally finished playing.", 
+      ending: true, 
+      title: "Winter's Release", 
+      desc: "By letting her go, you saved both of yourselves. The memory is gone, but the peace remains."
+  }
 };
 
 let state = {
-  currentScene: "start",
+  current: "start",
   closeness: 0,
   isTyping: false,
   isSkipping: false,
   history: []
 };
 
-const lineEl = document.getElementById("line");
-const nameEl = document.getElementById("nameplate");
-const skipBtn = document.getElementById("skipBtn");
-
+/* -------------------------
+   Engine Logic
+   ------------------------- */
 function startGame() {
     document.getElementById("startScreen").style.display = "none";
     document.getElementById("ui-wrapper").style.display = "flex";
     renderScene();
 }
 
-function toggleSkip() {
-    state.isSkipping = !state.isSkipping;
-    skipBtn.textContent = state.isSkipping ? "Skip: On" : "Skip: Off";
-    skipBtn.classList.toggle("active");
-}
-
 function typeWriter(text) {
     state.isTyping = true;
     let i = 0;
+    const lineEl = document.getElementById("line");
     lineEl.innerHTML = "";
     
     if (state.isSkipping) {
@@ -255,12 +261,12 @@ function typeWriter(text) {
     }
 
     function type() {
-        if (i < text.length && !state.isSkipping) {
+        if (i < text.length && state.isTyping) {
             lineEl.innerHTML += text.charAt(i);
             i++;
-            setTimeout(type, 30);
+            setTimeout(type, 25);
         } else {
-            lineEl.innerHTML = text; // Finish instantly if skip toggled
+            lineEl.innerHTML = text;
             state.isTyping = false;
         }
     }
@@ -268,27 +274,71 @@ function typeWriter(text) {
 }
 
 function renderScene() {
-    const scene = scenes[state.currentScene];
+    const scene = scenes[state.current];
     if (!scene) return;
 
-    // Sprite Handling
-    const airi = document.getElementById("airi");
-    const shino = document.getElementById("shino");
-    
-    airi.classList.toggle("active", scene.speaker === "airi");
-    shino.classList.toggle("active", scene.speaker === "shino");
-    if (state.closeness >= 3) shino.classList.add("fading");
+    // Log the dialogue
+    state.history.push({ name: scene.name, text: scene.text });
 
-    // Text Update
-    nameEl.textContent = scene.name;
+    // Handle Sprites
+    document.getElementById("airi").classList.toggle("active", scene.speaker === "airi");
+    document.getElementById("shino").classList.toggle("active", scene.speaker === "shino");
+    if (state.closeness >= 3) document.getElementById("shino").classList.add("fading");
+
+    // UI Updates
+    document.getElementById("nameplate").textContent = scene.name;
     typeWriter(scene.text);
 
-    // Reset Choices
-    const overlay = document.getElementById("choices-overlay");
-    overlay.style.display = "none";
-    overlay.innerHTML = "";
+    // Clear and Hide Overlays
+    const choiceOverlay = document.getElementById("choices-overlay");
+    choiceOverlay.style.display = "none";
+    choiceOverlay.innerHTML = "";
 
+    // If it's an ending, prepare the ending card
+    if (scene.ending) {
+        setTimeout(() => showEnding(scene), 3000);
+    }
+}
+
+function showEnding(scene) {
+    document.getElementById("end-title").textContent = scene.title;
+    document.getElementById("end-desc").textContent = scene.desc;
+    document.getElementById("ending-overlay").style.display = "flex";
+}
+
+function toggleSkip() {
+    state.isSkipping = !state.isSkipping;
+    const btn = document.getElementById("skipBtn");
+    btn.textContent = state.isSkipping ? "Skip: On" : "Skip: Off";
+    btn.classList.toggle("active");
+}
+
+function toggleLog() {
+    const logOverlay = document.getElementById("log-overlay");
+    const logContainer = document.getElementById("log-container");
+    
+    if (logOverlay.style.display === "flex") {
+        logOverlay.style.display = "none";
+    } else {
+        logContainer.innerHTML = state.history.map(h => `
+            <div class="log-entry">
+                <div class="log-name">${h.name}</div>
+                <div class="log-text">${h.text}</div>
+            </div>
+        `).join("");
+        logOverlay.style.display = "flex";
+    }
+}
+
+document.getElementById("textbox").onclick = () => {
+    if (state.isTyping) {
+        state.isTyping = false; // Fast-forward text
+        return;
+    }
+    
+    const scene = scenes[state.current];
     if (scene.choices) {
+        document.getElementById("choices-overlay").style.display = "flex";
         scene.choices.forEach(ch => {
             const b = document.createElement("button");
             b.className = "choice-btn";
@@ -296,39 +346,16 @@ function renderScene() {
             b.onclick = (e) => {
                 e.stopPropagation();
                 state.closeness += (ch.closeness || 0);
-                state.currentScene = ch.next;
+                state.current = ch.next;
                 renderScene();
             };
-            overlay.appendChild(b);
+            document.getElementById("choices-overlay").appendChild(b);
         });
-    }
-}
-
-document.getElementById("textbox").onclick = () => {
-    if (state.isTyping) {
-        state.isTyping = false; // Allow skipping to end of line
-        return;
-    }
-    const scene = scenes[state.currentScene];
-    if (scene.choices) {
-        document.getElementById("choices-overlay").style.display = "flex";
     } else if (scene.next) {
-        state.currentScene = scene.next;
+        state.current = scene.next;
         renderScene();
     }
 };
-
-// Simple Snow Generator
-for (let i = 0; i < 50; i++) {
-    const flake = document.createElement('div');
-    flake.style.cssText = `position:fixed; top:-10px; left:${Math.random()*100}vw; width:3px; height:3px; background:white; opacity:${Math.random()}; border-radius:50%; z-index:2; animation: fall ${Math.random()*5+5}s linear infinite;`;
-    document.getElementById('snow').appendChild(flake);
-}
-
-const style = document.createElement('style');
-style.innerHTML = `@keyframes fall { to { transform: translateY(105vh); } } @keyframes pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }`;
-document.head.appendChild(style);
-
 </script>
 </body>
 </html>
